@@ -10,10 +10,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.sql.SQLException;
 
 @SpringBootApplication
-public class TbspringApplication {
+public class TbSpringApplication {
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
-        SpringApplication.run(TbspringApplication.class, args);
+        SpringApplication.run(TbSpringApplication.class, args);
 
         UserDao userDao = new NUserDao();
 
