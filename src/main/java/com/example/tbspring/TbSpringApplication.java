@@ -1,8 +1,6 @@
 package com.example.tbspring;
 
-import com.example.tbspring.dao.DUserDao;
-import com.example.tbspring.dao.NUserDao;
-import com.example.tbspring.dao.UserDao;
+import com.example.tbspring.dao.*;
 import com.example.tbspring.domain.User;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,8 +12,8 @@ public class TbSpringApplication {
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         SpringApplication.run(TbSpringApplication.class, args);
-
-        UserDao userDao = new NUserDao();
+        ConnectionMaker connectionMaker = new DConnectionMaker();
+        UserDao userDao = new NUserDao(connectionMaker);
 
         User nUser = new User();
         nUser.setId("ramen");
@@ -30,8 +28,8 @@ public class TbSpringApplication {
         System.out.println("NUser name : " + user1.getName());
         System.out.println("success search NUser Info");
 //------------------------------------------------
-
-        UserDao userDao1 = new DUserDao();
+        ConnectionMaker NConnectionMaker = new NConnectionMaker();
+        UserDao userDao1 = new DUserDao(NConnectionMaker);
 
         User dUser = new User();
         dUser.setId("Dramen");
