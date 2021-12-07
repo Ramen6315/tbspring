@@ -28,8 +28,7 @@ public class TbSpringApplication {
         System.out.println("NUser name : " + user1.getName());
         System.out.println("success search NUser Info");
 //------------------------------------------------
-        ConnectionMaker NConnectionMaker = new NConnectionMaker();
-        UserDao userDao1 = new DUserDao(NConnectionMaker);
+        UserDao userDao1 = new DaoFactory().userDao();
 
         User dUser = new User();
         dUser.setId("Dramen");

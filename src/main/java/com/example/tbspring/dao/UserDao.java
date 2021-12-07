@@ -4,8 +4,8 @@ import com.example.tbspring.domain.User;
 
 import java.sql.*;
 
-public abstract class UserDao {
-    private ConnectionMaker connectionMaker;
+public class UserDao {
+    private final ConnectionMaker connectionMaker;
 
     public UserDao(ConnectionMaker connectionMaker) {
         this.connectionMaker = connectionMaker;
@@ -46,7 +46,5 @@ public abstract class UserDao {
 
         return user;
     }
-
-    public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
 
 }
