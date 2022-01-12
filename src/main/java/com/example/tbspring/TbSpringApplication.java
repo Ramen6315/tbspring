@@ -23,7 +23,8 @@ public class TbSpringApplication {
         nUser.setName("이중혁");
         nUser.setPassword("indivi");
 
-        UserDao userDao = new UserDaoDeleteAll();
+        UserDao userDao = new UserDao();
+
         userDao.deleteAll();
 
         System.out.println(nUser.getId() + " N등록 성공");

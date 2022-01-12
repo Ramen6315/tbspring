@@ -5,59 +5,77 @@ import com.example.tbspring.domain.User;
 import javax.sql.DataSource;
 import java.sql.*;
 
-public abstract class UserDao {
+public class UserDao {
     private DataSource dataSource;
+    private JdbcContext jdbcContext;
 
     public void setDataSource(DataSource dataSource) {
+        this.jdbcContext = new JdbcContext();
         this.dataSource = dataSource;
+        jdbcContext.setDataSource(dataSource);
     }
 
-    public void add(User user) throws ClassNotFoundException, SQLException {
-        Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(
-                "insert into user(id, name, password) values (?,?,?)"
+    public void add(final User user) throws ClassNotFoundException, SQLException {
+        this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
+                PreparedStatement preparedStatement = connection.prepareStatement(
+                        "insert into user(id, name, password) values (?,?,?)"
+                );
+                preparedStatement.setString(1, user.getId());
+                preparedStatement.setString(2, user.getName());
+                preparedStatement.setString(3, user.getPassword());
+                return preparedStatement;
+            }
+        }
         );
-        preparedStatement.setString(1, user.getId());
-        preparedStatement.setString(2, user.getName());
-        preparedStatement.setString(3, user.getPassword());
-
-        preparedStatement.executeUpdate();
-
-        preparedStatement.close();
-        connection.close();
     }
 
-    public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("select * from user where id = ?");
-
-        preparedStatement.setString(1, id);
-
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.next();
-
-        User user = new User();
-        user.setId(resultSet.getString("id"));
-        user.setName(resultSet.getString("name"));
-        user.setPassword(resultSet.getString("password"));
-
-        resultSet.close();
-        preparedStatement.close();
-        connection.close();
-
-        return user;
-    }
+//    public User get(String id) throws ClassNotFoundException, SQLException {
+//        this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {
+//            @Override
+//            public PreparedStatement makePreparedStatement(Connection connection) throws SQLException {
+//                return null;
+//            }
+//        });
+//        Connection connection = dataSource.getConnection();
+//        PreparedStatement preparedStatement = connection.prepareStatement("select * from user where id = ?");
+//
+//        preparedStatement.setString(1, id);
+//
+//        ResultSet resultSet = preparedStatement.executeQuery();
+//        resultSet.next();
+//
+//        User user = new User();
+//        user.setId(resultSet.getString("id"));
+//        user.setName(resultSet.getString("name"));
+//        user.setPassword(resultSet.getString("password"));
+//
+//        resultSet.close();
+//        preparedStatement.close();
+//        connection.close();
+//
+//        return user;
+//    }
 
     public void deleteAll() throws SQLException {
+        StatementStrategy statementStrategy = new DeleteAllStatement();
+        jdbcContextWithStatementStrategy(statementStrategy);
+    }
+
+    private void jdbcContextWithStatementStrategy(StatementStrategy statementStrategy) throws SQLException {
         Connection connection = null;
         PreparedStatement ps = null;
 
         try{
             connection = dataSource.getConnection();
+            /**
+             * 인터페이스 deleteAll()메서드에서 parameter로 받는 형식으로 DI를 구현 할 수 있다.
+             */
+            PreparedStatement preparedStatement = statementStrategy.makePreparedStatement(connection);
+//            ps = makeStatement(connection);
 
-            ps = makeStatement(connection);
-
-            ps.executeUpdate();
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw e;
         } finally {
@@ -114,6 +132,4 @@ public abstract class UserDao {
             }
         }
     }
-
-    abstract protected PreparedStatement makeStatement(Connection connection) throws SQLException;
 }
