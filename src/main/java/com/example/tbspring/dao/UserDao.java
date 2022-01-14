@@ -1,8 +1,13 @@
 package com.example.tbspring.dao;
 
 import com.example.tbspring.domain.User;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
 import javax.sql.DataSource;
+import javax.xml.transform.Result;
 import java.sql.*;
 
 public class UserDao {
@@ -57,11 +62,11 @@ public class UserDao {
 //
 //        return user;
 //    }
-
     public void deleteAll() throws SQLException {
-        StatementStrategy statementStrategy = new DeleteAllStatement();
-        jdbcContextWithStatementStrategy(statementStrategy);
+        jdbcContext.excuteQuery("delete from users");
     }
+
+
 
     private void jdbcContextWithStatementStrategy(StatementStrategy statementStrategy) throws SQLException {
         Connection connection = null;
@@ -97,39 +102,20 @@ public class UserDao {
     }
 
     public int getCount() throws SQLException {
-        Connection connection = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
-        try {
-            connection = dataSource.getConnection();
+        return jdbcTemplate.query(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                return con.prepareStatement("select count(*) from users");
+            }
+        }, new ResultSetExtractor<Integer>() {
+            @Override
+            public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
+                rs.next();
+                return rs.getInt(1);
+            }
+        });
 
-            ps = connection.prepareStatement("select count(*) from users");
-
-            rs = ps.executeQuery();
-            rs.next();
-            return rs.getInt(1);
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if(rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                }
-            }
-            if(ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                }
-            }
-            if(connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
     }
 }
