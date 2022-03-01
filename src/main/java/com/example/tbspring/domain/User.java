@@ -21,15 +21,14 @@ public class User {
         this.recommend = recommend;
         this.level = level;
     }
-
-    public boolean canUpgradeSilver() {
-        return this.level == Level.BASIC && this.login >= 50;
+    public void upgradeLevel() {
+        Level nextLevel = this.level.nextLevel();
+        if(nextLevel == null) {
+            throw  new IllegalArgumentException(this.level + "은 업그레이드가 불가능 합니다.");
+        } else {
+            this.level = nextLevel;
+        }
     }
-
-    public boolean canUpgradeGold() {
-        return this.level == Level.SILVER && this.recommend >= 30;
-    }
-
     public String getId() {
         return id;
     }
@@ -76,5 +75,14 @@ public class User {
 
     public void setLevel(Level level) {
         this.level = level;
+    }
+
+    public boolean canUpgradeLevels() {
+        switch(this.level) {
+            case BASIC : return (this.login >= 50);
+            case SILVER : return (this.recommend >= 30);
+            case GOLD : return false;
+            default : throw new IllegalArgumentException("Unknown Level");
+        }
     }
 }

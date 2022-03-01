@@ -5,10 +5,14 @@ import com.example.tbspring.domain.User;
 import com.example.tbspring.user.repository.UserDao;
 import org.springframework.stereotype.Service;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 @Service
 public class UserService {
+    DataSource dataSource;
     UserDao userDao;
 
     public void setUserDao(UserDao userDao) {
@@ -16,11 +20,19 @@ public class UserService {
     }
 
     public void updateLevels() {
-        List<User> allUsers = userDao.getAll();
+        try {
+            Connection connection = dataSource.getConnection();
+            List<User> allUsers = userDao.getAll();
 
-        for(User user : allUsers) {
-            upgradeUser(user);
+            for(User user : allUsers) {
+                if(user.canUpgradeLevels()) {
+                    upgradeLevel(connection, user);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+
     }
 
     public void add(User user) {
@@ -30,13 +42,9 @@ public class UserService {
         userDao.add(user);
     }
 
-    private void upgradeUser(User user) {
-        if(user.canUpgradeSilver()) {
-            user.setLevel(Level.SILVER);
-        } else if(user.canUpgradeGold()){
-            user.setLevel(Level.GOLD);
-        }
-        userDao.update(user);
+    private void upgradeLevel(Connection connection, User user) {
+        user.upgradeLevel();
+        userDao.update(connection, user);
     }
 
 }

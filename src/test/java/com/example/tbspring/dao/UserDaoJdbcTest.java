@@ -8,10 +8,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+
 @SpringBootTest
 class UserDaoJdbcTest {
 
     UserDaoJdbc userDao = new UserDaoJdbc();
+    DataSource dataSource;
 
     User user1;
     User user2;
@@ -39,21 +44,26 @@ class UserDaoJdbcTest {
 
     @Test
     void userUpdate() {
-        userDao.deleteAll();
-        userDao.add(user1);
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            userDao.deleteAll();
+            userDao.add(user1);
 
-        user1.setName("update Name");
-        user1.setId("update Id");
-        user1.setLevel(Level.GOLD);
-        user1.setLogin(2);
-        user1.setRecommend(3);
+            user1.setName("update Name");
+            user1.setId("update Id");
+            user1.setLevel(Level.GOLD);
+            user1.setLogin(2);
+            user1.setRecommend(3);
 
-        userDao.update(user1);
+            userDao.update(connection, user1);
 
-        User userUpdate = userDao.get(user1.getId());
+            User userUpdate = userDao.get(user1.getId());
 
-        checkSameUser(user1, userUpdate);
-
+            checkSameUser(user1, userUpdate);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void checkSameUser(User user1, User user) {

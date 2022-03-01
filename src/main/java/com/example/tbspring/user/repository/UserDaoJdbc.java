@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -57,7 +58,7 @@ public class UserDaoJdbc implements UserDao {
         return this.jdbcTemplate.query("select * from users order by id",this.userMapper);
     }
 
-    public void update(User user) {
+    public void update(Connection connection, User user) {
         this.jdbcTemplate.update("update users set name = ?, password = ?, level = ?, login = ?, recommend = ? where id = ?",
                 user.getName(), user.getPassword(), user.getLevel(), user.getLogin(), user.getRecommend(), user.getId());
     }
