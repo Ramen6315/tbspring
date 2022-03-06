@@ -56,7 +56,7 @@ class UserDaoJdbcTest {
             user1.setLogin(2);
             user1.setRecommend(3);
 
-            userDao.update(connection, user1);
+            userDao.update(user1);
 
             User userUpdate = userDao.get(user1.getId());
 

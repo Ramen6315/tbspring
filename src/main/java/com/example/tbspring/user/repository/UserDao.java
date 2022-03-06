@@ -12,6 +12,6 @@ public interface UserDao {
     User get(String id);
     List<User> getAll();
     void deleteAll();
-    void update(Connection connection, User user);
-    int getCount();
+    void update(User user);
+
 }

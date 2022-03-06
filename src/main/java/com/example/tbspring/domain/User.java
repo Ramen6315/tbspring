@@ -9,6 +9,7 @@ public class User {
     private int login;
     private int recommend;
     private Level level;
+    private String email;
 
     public User() {
     }
@@ -84,5 +85,9 @@ public class User {
             case GOLD : return false;
             default : throw new IllegalArgumentException("Unknown Level");
         }
+    }
+
+    public String getEmail() {
+        return this.email;
     }
 }
