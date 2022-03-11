@@ -12,6 +12,7 @@ public class TransactionHandler implements InvocationHandler {
     private Object target;
     private PlatformTransactionManager transactionManager;
     private String pattern;
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if(method.getName().startsWith(pattern)) {

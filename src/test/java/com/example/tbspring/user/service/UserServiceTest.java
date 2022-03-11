@@ -3,12 +3,15 @@ package com.example.tbspring.user.service;
 import com.example.tbspring.Level;
 import com.example.tbspring.MailSender;
 import com.example.tbspring.TransactionHandler;
+import com.example.tbspring.TxProxyFactoryBean;
 import com.example.tbspring.domain.User;
 import com.example.tbspring.user.repository.UserDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
@@ -23,6 +26,9 @@ import static org.assertj.core.api.Assertions.fail;
 
 @SpringBootTest
 class UserServiceTest {
+
+    @Autowired
+    ApplicationContext context;
 
     @Autowired
     PlatformTransactionManager platformTransactionManager;
@@ -100,7 +106,7 @@ class UserServiceTest {
     }
 
     @Test
-    public void upgradeAllOrNotiong() {
+    public void upgradeAllOrNothing() throws Exception {
         TestUserService testUserService = new TestUserService(allUsers.get(3).getId());
         testUserService.setUserDao(this.userDao);
         testUserService.setMailSender(mailSender);
@@ -113,6 +119,9 @@ class UserServiceTest {
         UserService txUserService =
                 (UserService) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{UserService.class}, txHandler);
 
+        ProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", ProxyFactoryBean.class);
+        txProxyFactoryBean.setTarget(testUserService);
+        UserService userService = (UserService) txProxyFactoryBean.getObject();
 
         userDao.deleteAll();
         for(User user : allUsers) {

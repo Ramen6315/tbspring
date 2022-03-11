@@ -33,6 +33,5 @@ public class ReflectionTest {
     void dynamicProxy() {
         Hello hello = (Hello) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{Hello.class}, new UppercaseHandler(new HelloTarget()));
         assertThat(hello.sayHello("name")).isEqualTo("HELLONAME");
-
     }
 }

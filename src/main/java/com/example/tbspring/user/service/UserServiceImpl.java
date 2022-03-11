@@ -44,7 +44,6 @@ public class UserServiceImpl {
                 upgradeLevel(user);
             }
         }
-
     }
 
     public void add(User user) {
